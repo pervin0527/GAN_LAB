@@ -1,0 +1,18 @@
+save_dir: "./runs"
+data_dir: "/home/pervinco/Datasets"
+dataset_name: "mnist"
+
+epochs: 100
+batch_size: 224
+img_size: 128
+lr: 0.0001
+
+mean: [0.5] ## [0.5, 0.5, 0.5]
+std: [0.5] ## [0.5, 0.5, 0.5]
+
+nc: 1
+nz: 64
+ndf: 256
+ngf: 256
+
+num_images: 64
