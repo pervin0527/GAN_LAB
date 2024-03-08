@@ -29,6 +29,10 @@ class Args:
     def make_dir(self, path):
         if not os.path.exists(path):
             os.makedirs(path)
+            os.makedirs(f"{path}/imgs")
+            os.makedirs(f"{path}/ckpt")
+
             print(f"{path} is generated.")
+            
         else:
             print(f"{path} already exists.")

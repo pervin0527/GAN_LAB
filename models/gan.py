@@ -18,12 +18,6 @@ class Discriminator(nn.Module):
                                nn.LeakyReLU(0.2),
                                nn.Linear(ndf, ndf),
                                nn.LeakyReLU(0.2),
-                               nn.Linear(ndf, ndf),
-                               nn.LeakyReLU(0.2),
-                               nn.Linear(ndf, ndf),
-                               nn.LeakyReLU(0.2),
-                               nn.Linear(ndf, ndf),
-                               nn.LeakyReLU(0.2),
                                nn.Linear(ndf, 1),
                                nn.Sigmoid())
         
@@ -42,12 +36,6 @@ class Generator(nn.Module):
         
         self.G = nn.Sequential(
             nn.Linear(nz, ngf),
-            nn.ReLU(),
-            nn.Linear(ngf, ngf),
-            nn.ReLU(),
-            nn.Linear(ngf, ngf),
-            nn.ReLU(),
-            nn.Linear(ngf, ngf),
             nn.ReLU(),
             nn.Linear(ngf, ngf),
             nn.ReLU(),

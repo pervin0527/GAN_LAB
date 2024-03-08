@@ -21,11 +21,15 @@ def train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args):
         real_labels = torch.full((bs,), 1., dtype=torch.float, device=args.device)
         fake_labels = torch.full((bs,), 0., dtype=torch.float, device=args.device)
 
+        # ================================================================== #
+        #                      Train the discriminator                       #
+        # ================================================================== #
         ## first term of Object function
-        D.zero_grad()
+        d_optimizer.zero_grad()
+        g_optimizer.zero_grad()
+
         Gx = D(real_images).view(-1) ## [128, 1, 1, 1] --> [128]
         d_real_loss = criterion(Gx, real_labels)
-        d_real_loss.backward()
         D_real_accuracies.append((Gx > 0.5).float().mean().item())
 
         ## second term of Object function
@@ -35,19 +39,26 @@ def train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args):
         ## detach : 생성자 G의 출력에서 계산된 그래디언트가 생성자 자체로 역전파되는 것을 방지함.
         DGz1 = D(Gz.detach()).view(-1) ## [128, 1, 1, 1] --> [128]
         d_fake_loss = criterion(DGz1, fake_labels) 
-        d_fake_loss.backward()
-        D_fake_accuracies_before_update.append((DGz1 < 0.5).float().mean().item())
 
         d_loss = d_real_loss + d_fake_loss
+        d_loss.backward()
         d_optimizer.step()
+        D_fake_accuracies_before_update.append((DGz1 < 0.5).float().mean().item()) ## 확률이 낮을수록 가짜에 속지 않음.
 
+        # ================================================================== #
+        #                        Train the generator                         #
+        # ================================================================== #
         ## Train Generator
-        G.zero_grad()
+        d_optimizer.zero_grad()
+        g_optimizer.zero_grad()
+
+        z = torch.randn(bs, args.nz, 1, 1, device=args.device) ## [batch_size, 100, 1, 1]
         DGz2 = D(Gz).view(-1) ## [128, 1, 1, 1] --> [128]
-        g_loss = criterion(DGz2, real_labels)
+        # g_loss = -criterion(DGz2, real_labels)
+        g_loss = criterion(DGz2, real_labels) ## 생성한 데이터를 진짜라고 구분할수록 오차가 더 낮음.
         g_loss.backward()
-        D_fake_accuracies_after_update.append((DGz2 > 0.5).float().mean().item())
         g_optimizer.step()
+        D_fake_accuracies_after_update.append((DGz2 > 0.5).float().mean().item()) ## 확률이 높을수록 가짜를 진짜로 판별한 것.
 
         D_losses.append(d_loss.item())
         G_losses.append(g_loss.item())
@@ -60,6 +71,7 @@ def train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args):
         'D_fake_acc_after': sum(D_fake_accuracies_after_update) / len(D_fake_accuracies_after_update),
     }
     return avg_metrics
+
 
 def main():
     args = Args("./hyps.yaml")
@@ -74,10 +86,11 @@ def main():
     G = G.to(args.device)
 
     criterion = nn.BCELoss()
-    d_optimizer = torch.optim.Adam(D.parameters(), lr=args.lr)
-    g_optimizer = torch.optim.Adam(G.parameters(), lr=args.lr)
+    d_optimizer = torch.optim.Adam(D.parameters(), lr=args.d_lr)
+    g_optimizer = torch.optim.Adam(G.parameters(), lr=args.g_lr)
 
     fixed_noise = torch.randn(args.num_images, args.nz, 1, 1, device=args.device)
+    print("\nStart Training.")
     for epoch in range(args.epochs):
         print(f"Epoch [{epoch+1}/{args.epochs}]")
         metrics = train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args)
@@ -90,8 +103,8 @@ def main():
         save_fake_images(epoch+1, G, fixed_noise, args)
 
     # Save the model checkpoints 
-    torch.save(G.state_dict(), f'{args.save_dir}/G.ckpt')
-    torch.save(D.state_dict(), f'{args.save_dir}/D.ckpt')
+    torch.save(G.state_dict(), f'{args.save_dir}/ckpt/G.ckpt')
+    torch.save(D.state_dict(), f'{args.save_dir}/ckpt/D.ckpt')
 
 
 if __name__ == "__main__":

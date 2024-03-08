@@ -1,16 +1,17 @@
 save_dir: "./runs"
 data_dir: "/home/pervinco/Datasets"
-dataset_name: "mnist"
+dataset_name: "CelebA"
 
-epochs: 100
-batch_size: 224
-img_size: 128
-lr: 0.0001
+epochs: 10
+batch_size: 256
+img_size: 64
+d_lr: 0.0001
+g_lr: 0.0001
 
-mean: [0.5] ## [0.5, 0.5, 0.5]
-std: [0.5] ## [0.5, 0.5, 0.5]
+mean: null
+std: null
 
-nc: 1
+nc: 3
 nz: 64
 ndf: 256
 ngf: 256

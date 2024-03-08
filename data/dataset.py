@@ -12,9 +12,14 @@ def get_transform(args):
 
 
 def get_dataset(args):
-    if len(args.mean) > 1 and len(args.std) > 1 and args.dataset_name == "mnist":
+    if args.mean is None and args.std is None and args.dataset_name != "mnist":
+        args.mean = (0.485, 0.456, 0.406)
+        args.std = (0.229, 0.224, 0.225)
+    
+    elif args.dataset_name == "mnist":
         args.mean = [0.5]
         args.std = [0.5]
+
     transform = get_transform(args)
     
     if args.dataset_name.lower() == "mnist":
