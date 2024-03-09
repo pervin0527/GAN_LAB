@@ -3,11 +3,12 @@ import torch
 
 from torch import nn
 from tqdm import tqdm
+from torchsummary import summary
 from torch.utils.data import DataLoader
 
 from utils.basic_utils import Args
-from models.gan import get_D_and_G
 from data.dataset import get_dataset
+from models.model_loader import load_model
 from utils.train_utils import save_fake_images
 
 
@@ -28,9 +29,9 @@ def train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args):
         d_optimizer.zero_grad()
         g_optimizer.zero_grad()
 
-        Gx = D(real_images).view(-1) ## [128, 1, 1, 1] --> [128]
-        d_real_loss = criterion(Gx, real_labels)
-        D_real_accuracies.append((Gx > 0.5).float().mean().item())
+        Dx = D(real_images).view(-1) ## [128, 1, 1, 1] --> [128]
+        d_real_loss = criterion(Dx, real_labels)
+        D_real_accuracies.append((Dx > 0.5).float().mean().item())
 
         ## second term of Object function
         z = torch.randn(bs, args.nz, 1, 1, device=args.device) ## [batch_size, 100, 1, 1]
@@ -81,7 +82,7 @@ def main():
     dataset = get_dataset(args)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
-    D, G = get_D_and_G(args)
+    G, D = load_model(args)
     D = D.to(args.device)
     G = G.to(args.device)
 
