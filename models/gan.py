@@ -4,13 +4,12 @@ class Discriminator(nn.Module):
     def __init__(self, args):
         super().__init__()
         self.nc = args.nc
+        self.ndf = args.ndf
         self.img_size = args.img_size
         self.D = nn.Sequential(nn.Linear(self.nc * self.img_size * self.img_size, self.ndf),
-                               nn.ReLU(),
+                               nn.LeakyReLU(0.2),
                                nn.Linear(self.ndf, self.ndf),
-                               nn.Dropout(0.3),
-                               nn.ReLU(),
-                               nn.Dropout(0.3),
+                               nn.LeakyReLU(0.2),
                                nn.Linear(self.ndf, 1),
                                nn.Sigmoid())
         
@@ -24,19 +23,17 @@ class Discriminator(nn.Module):
 class Generator(nn.Module):
     def __init__(self, args):
         super().__init__()
+        self.nz = args.nz
         self.nc = args.nc
         self.ngf = args.ngf
         self.img_size = args.img_size
         
-        self.G = nn.Sequential(
-            nn.Linear(self.nz, self.ngf),
-            nn.ReLU(),
-            nn.Linear(self.ngf, self.ngf),
-            nn.ReLU(),
-            nn.Linear(self.ngf, self.nc * self.img_size * self.img_size),
-            # nn.Tanh()
-            nn.Sigmoid()
-        )
+        self.G = nn.Sequential(nn.Linear(self.nz, self.ngf),
+                               nn.ReLU(),
+                               nn.Linear(self.ngf, self.ngf),
+                               nn.ReLU(),
+                               nn.Linear(self.ngf, self.nc * self.img_size * self.img_size),
+                               nn.Tanh())
         
     def forward(self, z):
         z = z.view(z.size(0), -1) # z를 [batch_size, args.nz]로 평탄화

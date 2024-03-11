@@ -13,8 +13,13 @@ def load_model(args):
     model_name = args.model_name.lower()
     model_module = importlib.import_module(f"models.{model_name}")
 
-    Generator = getattr(model_module, "Generator")
-    Discriminator = getattr(model_module, "Discriminator")
+    if model_name in ["wgan"]:
+        Generator = getattr(model_module, "Generator")
+        Discriminator = getattr(model_module, "Critic")
+
+    else:
+        Generator = getattr(model_module, "Generator")
+        Discriminator = getattr(model_module, "Discriminator")
 
     G = Generator(args)
     D = Discriminator(args)

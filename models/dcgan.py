@@ -3,32 +3,32 @@ from torch import nn
 class Generator(nn.Module):
     def __init__(self, args):
         super().__init__()
-        nz = args.nz
-        ngf = args.ngf
+        self.nz = args.nz
+        self.ngf = args.ngf
         self.nc = args.nc
 
-        self.main = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=nz, out_channels=ngf * 8, kernel_size=4, stride=1, padding=0, bias=False), ## latent --> (ngf*8) x 4 x 4
-            nn.BatchNorm2d(ngf * 8),
+        self.model = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=self.nz, out_channels=self.ngf * 8, kernel_size=4, stride=1, padding=0, bias=False), ## latent --> (self.ngf*8) x 4 x 4
+            nn.BatchNorm2d(self.ngf * 8),
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(in_channels=ngf * 8, out_channels=ngf * 4, kernel_size=4, stride=2, padding=1, bias=False), ## (ngf*8) x 4 x 4 --> (ngf*4) x 8 x 8
-            nn.BatchNorm2d(ngf * 4),
+            nn.ConvTranspose2d(in_channels=self.ngf * 8, out_channels=self.ngf * 4, kernel_size=4, stride=2, padding=1, bias=False), ## (self.ngf*8) x 4 x 4 --> (self.ngf*4) x 8 x 8
+            nn.BatchNorm2d(self.ngf * 4),
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(in_channels=ngf * 4, out_channels=ngf * 2, kernel_size=4, stride=2, padding=1, bias=False), ## (ngf*4) x 8 x 8 --> (ngf*2) x 16 x 16
-            nn.BatchNorm2d(ngf * 2),
+            nn.ConvTranspose2d(in_channels=self.ngf * 4, out_channels=self.ngf * 2, kernel_size=4, stride=2, padding=1, bias=False), ## (self.ngf*4) x 8 x 8 --> (self.ngf*2) x 16 x 16
+            nn.BatchNorm2d(self.ngf * 2),
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(in_channels=ngf * 2, out_channels=ngf, kernel_size=4, stride=2, padding=1, bias=False), ## (ngf*2) x 16 x 16 --> (ngf) x 32 x 32
-            nn.BatchNorm2d(ngf),
+            nn.ConvTranspose2d(in_channels=self.ngf * 2, out_channels=self.ngf, kernel_size=4, stride=2, padding=1, bias=False), ## (self.ngf*2) x 16 x 16 --> (self.ngf) x 32 x 32
+            nn.BatchNorm2d(self.ngf),
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(in_channels=ngf, out_channels=self.nc, kernel_size=4, stride=2, padding=1, bias=False), ## (ngf) x 32 x 32 --> (self.nc) x 64 x 64
+            nn.ConvTranspose2d(in_channels=self.ngf, out_channels=self.nc, kernel_size=4, stride=2, padding=1, bias=False), ## (self.ngf) x 32 x 32 --> (self.nc) x 64 x 64
             nn.Tanh())
 
     def forward(self, x):
-        return self.main(x)
+        return self.model(x)
 
 
 class Discriminator(nn.Module):
@@ -37,7 +37,7 @@ class Discriminator(nn.Module):
         self.nc = args.nc
         self.ndf = args.ndf
 
-        self.main = nn.Sequential(
+        self.model = nn.Sequential(
             nn.Conv2d(in_channels=self.nc, out_channels=self.ndf, kernel_size=4, stride=2, padding=1, bias=False), ## 3 x 64 x 64 --> ndf x 32 x 32
             nn.LeakyReLU(0.2, inplace=True),
             
@@ -58,4 +58,4 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, x):
-        return self.main(x)
+        return self.model(x)

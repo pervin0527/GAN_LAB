@@ -2,19 +2,25 @@ save_dir: "./runs"
 data_dir: "/home/pervinco/Datasets"
 dataset_name: "mnist"
 
-model_name: "DCGAN"
+model_name: "dcgan"
 init_weights: True
 nc: 1
 nz: 100
-ndf: 64
-ngf: 64
+ngf: 256
+ndf: 256
 num_images: 64
 
-epochs: 10
+epochs: 100
 batch_size: 256
 img_size: 64
+
 d_lr: 0.0001
+d_beta1: 0.5
+d_beta2: 0.999
+
 g_lr: 0.0001
+g_beta1: 0.5
+g_beta2: 0.999
 
 mean: null
 std: null

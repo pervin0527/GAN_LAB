@@ -87,8 +87,8 @@ def main():
     G = G.to(args.device)
 
     criterion = nn.BCELoss()
-    d_optimizer = torch.optim.Adam(D.parameters(), lr=args.d_lr)
-    g_optimizer = torch.optim.Adam(G.parameters(), lr=args.g_lr)
+    d_optimizer = torch.optim.Adam(D.parameters(), lr=args.d_lr, betas=(args.d_beta1, args.d_beta2))
+    g_optimizer = torch.optim.Adam(G.parameters(), lr=args.g_lr, betas=(args.g_beta1, args.g_beta2))
 
     fixed_noise = torch.randn(args.num_images, args.nz, 1, 1, device=args.device)
     print("\nStart Training.")

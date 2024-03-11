@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 
 from torchvision import utils as vutils
 
+def denorm(x):
+    out = (x + 1) / 2
+    return out.clamp(0, 1)
+
 def save_real_images(dataloader, args):
     real_batch = next(iter(dataloader))
     
@@ -17,6 +21,7 @@ def save_real_images(dataloader, args):
 def save_fake_images(epoch, G, fixed_noise, args):
     with torch.no_grad():  # 그래디언트 계산을 하지 않음
         fake_images = G(fixed_noise).detach().cpu()
+        # fake_images = denorm(fake_images)
 
     fig = plt.figure(figsize=(8, 8))
     plt.axis("off")

@@ -6,8 +6,8 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 
 from utils.basic_utils import Args
-from models.gan import get_D_and_G
 from data.dataset import get_dataset
+from models.model_loader import load_model
 from utils.train_utils import save_fake_images
 
 def train(D, G, dataloader, d_optimizer, g_optimizer, criterion, args):
@@ -74,7 +74,7 @@ def main():
     dataset = get_dataset(args)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
 
-    D, G = get_D_and_G(args)
+    G, D = load_model(args)
     D = D.to(args.device)
     G = G.to(args.device)
 
